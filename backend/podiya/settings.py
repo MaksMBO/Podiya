@@ -14,7 +14,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS')]
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -23,6 +23,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
 ]
+
+LOCAL_APPS = [
+    "users.apps.UsersConfig",
+]
+
+INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
+
+AUTH_USER_MODEL = "users.CustomUser"
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -61,7 +69,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'podiya.wsgi.application'
 
 DATABASES = {
-	"default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
+    "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
 }
 
 AUTH_PASSWORD_VALIDATORS = [
