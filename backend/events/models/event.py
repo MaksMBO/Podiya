@@ -28,6 +28,6 @@ class Event(models.Model):
                 not hasattr(self.creator, 'is_admin') and
                 not hasattr(self.creator, 'is_content_maker')):
             raise ValidationError(
-                "Створювач повинен мати принаймні один з наступних атрибутів: 'is_staff', 'is_admin' або 'is_content_maker'.")
+                "Створювач повинен мати принаймні один з наступних атрибутів: 'is_staff', 'is_superadmin' або 'is_content_maker'.")
         super().save(*args, **kwargs)
         handle_image(self)

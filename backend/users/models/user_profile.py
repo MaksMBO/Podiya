@@ -12,4 +12,4 @@ class UserProfile(models.Model):
                                        name='followers')
 
     def __str__(self):
-        return self.user
+        return str(self.user)

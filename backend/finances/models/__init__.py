@@ -1,2 +1,2 @@
-from .paymentCard import PaymentCard
-from .transactionHistory import TransactionHistory
+from .payment_card import PaymentCard
+from .transaction_history import TransactionHistory
