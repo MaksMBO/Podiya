@@ -1,6 +1,6 @@
 from rest_framework import permissions, viewsets
-from .serializers import CustomUserSerializer
-from .models import CustomUser
+from .serializers import UserSerializer
+from .models import User
 
 
 class IsOwnerOrAdmin(permissions.BasePermission):
@@ -8,9 +8,9 @@ class IsOwnerOrAdmin(permissions.BasePermission):
         return obj == request.user or request.user.is_staff
 
 
-class CustomUserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
     # permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
     #
     # def get_permissions(self):

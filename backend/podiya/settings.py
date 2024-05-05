@@ -26,11 +26,14 @@ DJANGO_APPS = [
 
 LOCAL_APPS = [
     "users.apps.UsersConfig",
+    "finances.apps.FinancesConfig",
+    "events.apps.EventsConfig",
+    "tickets.apps.TicketsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
 
-AUTH_USER_MODEL = "users.CustomUser"
+AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -69,9 +72,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'podiya.wsgi.application'
 
-DATABASES = {
-    "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
-}
+if os.getenv('DB_ON_SERVER').lower() == 'true':
+    DATABASES = {
+        "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
