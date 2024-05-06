@@ -16,6 +16,6 @@ class Command(BaseCommand):
                 card = PaymentCard(user=user, last_four_digits=category_name)
                 card.full_clean()
                 card.save()
-            self.stdout.write(self.style.SUCCESS("Категорії успішно створені!"))
+            self.stdout.write(self.style.SUCCESS("Банківські карти успішно створені!"))
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f"Помилка: {e}. Категорія не створена"))
+            self.stdout.write(self.style.ERROR(f"Помилка: {e}. Банківська карта не створена"))

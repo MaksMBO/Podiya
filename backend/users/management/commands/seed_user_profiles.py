@@ -1,7 +1,11 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
+from faker import Faker
+
 from users.models import UserProfile
 from random import sample, randint
+
+fake = Faker('uk_UA')
 
 
 class Command(BaseCommand):
@@ -18,15 +22,17 @@ class Command(BaseCommand):
                 except UserProfile.DoesNotExist:
                     pass
 
-                profile = UserProfile(
-                    user=user,
-                )
+                if user.is_staff or user.is_content_maker:
+                    profile = UserProfile(
+                        user=user,
+                        about=fake.text(max_nb_chars=300),
+                    )
+                else:
+                    profile = UserProfile(user=user)
                 profile.full_clean()
                 profile.save()
 
-                # Вибираємо фоловерів, які ще не включають оброблюваного користувача
                 followers = [follower for follower in users if follower != user]
-                # Обмежуємо кількість фоловерів для кожного користувача
                 followers = sample(followers, k=randint(0, len(users) - 1))
                 profile.followers.add(*followers)
                 profile.save()

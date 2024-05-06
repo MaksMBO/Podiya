@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.utils import timezone
+
 from events.models import Event, Tag
 from random import choice, randint
 from faker import Faker
@@ -27,7 +29,7 @@ class Command(BaseCommand):
                     name=fake.sentence(nb_words=5),
                     description=fake.text(max_nb_chars=200),
                     price=randint(0, 1000),
-                    time=fake.future_datetime(end_date='+30d'),
+                    time=timezone.make_aware(fake.future_datetime(end_date='+30d')),
                     creator=user,
                 )
                 event.full_clean()

@@ -19,7 +19,7 @@ class Command(BaseCommand):
                     is_staff=random.choice([True, False]),
                     is_content_maker=random.choice([True, False]),
                 )
-                user.set_password('Test1234')
+                user.set_password('1234')
                 user.full_clean()
                 user.save()
             self.stdout.write(self.style.SUCCESS("Користувачі успішно створені!"))
