@@ -46,14 +46,17 @@ def resize_and_convert_image(image_path: str) -> Tuple[str, str]:
     return convert_to_webp(img, original_path)
 
 
-def handle_image(instance) -> None:
+def handle_image(instance, img_instance) -> None:
     """
     Processes the model image, resizing it and converting it to WEBP format.
     """
-    if instance.image:
-        new_image_path, old_image_path = resize_and_convert_image(instance.image.path)
-        if new_image_path:
-            instance.image.name = new_image_path
-            instance.save()
-            if old_image_path and os.path.exists(old_image_path):
-                os.remove(old_image_path)
+    try:
+        if img_instance:
+            new_image_path, old_image_path = resize_and_convert_image(img_instance.path)
+            if new_image_path:
+                img_instance.name = new_image_path
+                instance.save()
+                if old_image_path and os.path.exists(old_image_path):
+                    os.remove(old_image_path)
+    except AttributeError:
+        pass

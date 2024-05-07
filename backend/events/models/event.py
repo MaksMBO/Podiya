@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.core.exceptions import ValidationError
 
-from events.services.image_info import handle_image
+from helper.image_info import handle_image
 
 
 class Event(models.Model):
@@ -29,4 +29,4 @@ class Event(models.Model):
             raise ValidationError(
                 "Створювач повинен мати принаймні один з наступних атрибутів: 'is_staff' або 'is_content_maker'.")
         super().save(*args, **kwargs)
-        handle_image(self)
+        handle_image(self, self.image)
