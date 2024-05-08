@@ -1,9 +1,9 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, response, status
 from .serializers import TagSerializer
 from .models import Tag
 
 
-class IsAdminOrReadOnly(permissions.BasePermission):
+class IsAdminContentMakerOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow administrators to edit or delete tags.
     """
@@ -15,10 +15,11 @@ class IsAdminOrReadOnly(permissions.BasePermission):
             return request.user.is_staff or request.user.is_superuser or request.user.is_content_maker
 
 
+# ---------------------------------------TAGS--------------------------------------------------------
 class TagBaseView(generics.GenericAPIView):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminContentMakerOrReadOnly]
 
     def get_queryset(self):
         user = self.request.user
@@ -35,6 +36,20 @@ class TagListCreateView(TagBaseView, generics.ListCreateAPIView):
         self.perform_action(serializer)
 
 
-class TagRetrieveUpdateView(TagBaseView, generics.RetrieveUpdateAPIView):
+class TagRetrieveUpdateDestroyView(TagBaseView, generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         self.perform_action(serializer)
+
+# -----------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------EVENTS--------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------COMMENTS--------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------------------------
