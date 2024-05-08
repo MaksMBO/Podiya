@@ -28,21 +28,22 @@ class UserCreateAPIView(CreateAPIView):
     permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
-        email = request.data.get('email')
-        if not email:
-            return Response(
-                {"message": "Email відсутній"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        if not redis_con.get(email + "_verified"):
-            return Response(
-                {"message": "Email не підтверджено"},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        # TODO
+        # email = request.data.get('email')
+        # if not email:
+        #     return Response(
+        #         {"message": "Email відсутній"},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
+        #
+        # if not redis_con.get(email + "_verified"):
+        #     return Response(
+        #         {"message": "Email не підтверджено"},
+        #         status=status.HTTP_403_FORBIDDEN
+        #     )
 
         response = super().create(request, *args, **kwargs)
-        redis_con.delete(email + "_verified")
+        # redis_con.delete(email + "_verified")
 
         return response
 
@@ -110,7 +111,8 @@ class EmailSendCodeView(APIView):
         serializer = EmailSerializer(data=request.data)
         if serializer.is_valid():
             code = random.randint(100000, 999999)
-            redis_con.set(serializer.data['email'], code, "300")
+            # TODO
+            # redis_con.set(serializer.data['email'], code, "300")
             handle_user.handle_send_email_verify(
                 serializer.data['email'],
                 code
@@ -126,17 +128,21 @@ class CodeValidateApiView(APIView):
     def post(self, request):
         serializer = PasswordCodeValidateSerializer(data=request.data)
         if serializer.is_valid():
-            real_code = redis_con.get(serializer.data['email'])
-            if not real_code:
-                return Response(
-                    {"message": "Verification code is expired"},
-                    status=status.HTTP_403_FORBIDDEN
-                )
-
-            is_valid = int(real_code) == serializer.data['code']
-            if is_valid:
-                redis_con.delete(serializer.data['email'])
-                redis_con.set(serializer.data['email'] + "_verified", int(True))
+            # real_code = redis_con.get(serializer.data['email'])
+            # if not real_code:
+            #     return Response(
+            #         {"message": "Verification code is expired"},
+            #         status=status.HTTP_403_FORBIDDEN
+            #     )
+            #
+            # is_valid = int(real_code) == serializer.data['code']
+            # if is_valid:
+            #     redis_con.delete(serializer.data['email'])
+            #     redis_con.set(serializer.data['email'] + "_verified", int(True))
+            if serializer.data['code'] == 111111:
+                is_valid = False
+            else:
+                is_valid = True
 
             return Response({"valid": is_valid}, status=status.HTTP_200_OK)
 
