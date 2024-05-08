@@ -10,10 +10,10 @@ class Event(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     image = models.ImageField(upload_to='events/', null=True, blank=True)
+    location = models.CharField(max_length=255)
     time = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     tags = models.ManyToManyField("events.Tag",
-                                  blank=True,
                                   related_name="events",
                                   name="tags")
     creator = models.ForeignKey(get_user_model(),
