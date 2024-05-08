@@ -93,6 +93,15 @@ class EventViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    # @action(detail=True, methods=['POST'], permission_classes=[IsAuthenticated])
+    # def buy_ticket(self, request, pk=None):
+    #     event = self.get_object()
+    #     serializer = ReviewSerializerPost(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save(user=request.user, event=event)
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 # -----------------------------------------------------------------------------------------------
 
 
