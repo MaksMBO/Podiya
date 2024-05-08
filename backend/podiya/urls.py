@@ -11,6 +11,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
     path('api/events/', include('events.urls')),
+    path('api/finances/', include('finances.urls')),
 ]
 
 if settings.DEBUG:
