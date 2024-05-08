@@ -55,13 +55,19 @@ class UserAndProfileEditSerializer(serializers.Serializer):
         user_instance = instance.user
         profile_instance = instance
 
-        for attr, value in user_data.items():
-            setattr(user_instance, attr, value)
-        user_instance.save()
+        if not user_data and not profile_data:
+            message = {"message": "Для редагування потрібно ввести дані користувача або профілю."}
+            raise serializers.ValidationError(message)
 
-        for attr, value in profile_data.items():
-            setattr(profile_instance, attr, value)
-        profile_instance.save()
+        if user_data:
+            for attr, value in user_data.items():
+                setattr(user_instance, attr, value)
+            user_instance.save()
+
+        if profile_data:
+            for attr, value in profile_data.items():
+                setattr(profile_instance, attr, value)
+            profile_instance.save()
 
         return instance
 
@@ -71,6 +77,5 @@ class EmailSerializer(serializers.Serializer):
 
 
 class PasswordCodeValidateSerializer(serializers.Serializer):
-
     email = serializers.EmailField()
     code = serializers.IntegerField()
