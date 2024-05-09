@@ -31,7 +31,8 @@ class Command(BaseCommand):
                     price=randint(0, 1000),
                     time=timezone.make_aware(fake.future_datetime(end_date='+30d')),
                     creator=user,
-                    image=f'events/test_event.webp'
+                    image=f'events/test_event.webp',
+                    location=f'{fake.city()}, {fake.street_name()}, {fake.building_number()}'
                 )
                 event.full_clean()
                 event.save()

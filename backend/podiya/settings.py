@@ -76,17 +76,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'podiya.wsgi.application'
 
-if os.getenv('DB_ON_SERVER').lower() == 'true':
-    DATABASES = {
-        "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
+# if os.getenv('DB_ON_SERVER').lower() == 'true':
+#     DATABASES = {
+#         "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
+#     }
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
+#     }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'podiya',
+        'USER': 'postgres',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -104,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=300),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
 }
 

@@ -12,7 +12,6 @@ class TransactionHistory(models.Model):
                                      related_name='payment_card_transaction_history')
     event = models.ForeignKey("events.Event",
                               on_delete=models.CASCADE,
-                              null=True,
                               related_name='event_transaction_history')
 
     def __str__(self):
