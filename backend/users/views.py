@@ -21,8 +21,8 @@ from .serializers import UserCreateSerializer, UserSerializer, UserAndProfileEdi
     ContentMakerRequestUpdateSerializer
 from .services import handle_user
 
-# redis_con = redis.Redis(host='podiya_redis', decode_responses=True)
-redis_con = redis.Redis(decode_responses=True)
+redis_con = redis.Redis(host='podiya_redis', decode_responses=True)
+#redis_con = redis.Redis(decode_responses=True)
 
 
 class UserCreateAPIView(CreateAPIView):
