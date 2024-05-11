@@ -21,8 +21,8 @@ from .serializers import UserCreateSerializer, UserSerializer, UserAndProfileEdi
     ContentMakerRequestUpdateSerializer
 from .services import handle_user
 
-redis_con = redis.Redis(host='podiya_redis', decode_responses=True)
-# redis_con = redis.Redis(decode_responses=True)
+# redis_con = redis.Redis(host='podiya_redis', decode_responses=True)
+redis_con = redis.Redis(decode_responses=True)
 
 
 class UserCreateAPIView(CreateAPIView):
@@ -35,13 +35,13 @@ class UserCreateAPIView(CreateAPIView):
         email = request.data.get('email')
         if not email:
             return Response(
-                {"error": "Email відсутній"},
+                {"error": "There is no email"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         if not redis_con.get(email + "_verified"):
             return Response(
-                {"error": "Email не підтверджено"},
+                {"error": "Email not confirmed"},
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -71,29 +71,29 @@ class UserAndProfileEditAPIView(UpdateAPIView):
 
 class UserLoginAPIView(APIView):
     def post(self, request, *args, **kwargs):
-        required_fields = ['username', 'email', 'password']
+        required_fields = ['email', 'password']
         missing_fields = [field for field in required_fields if not request.data.get(field)]
 
         if missing_fields:
-            return Response({'error': f"Будь ласка, вкажіть {', '.join(missing_fields)}"},
+            return Response({'error': f"Please specify {', '.join(missing_fields)}"},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        username = request.data.get('username')
+        # username = request.data.get('username')
         email = request.data.get('email')
         password = request.data.get('password')
 
         try:
-            user = get_user_model().objects.get(username=username, email=email)
+            user = get_user_model().objects.get(email=email)
         except get_user_model().DoesNotExist:
-            return Response({'error': "Користувача з такими даними не існує"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': "User with such data does not exist"}, status=status.HTTP_401_UNAUTHORIZED)
 
         if not user.check_password(password):
-            return Response({'error': 'Невірний пароль'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, username=user.username, password=password)
 
         if user is None:
-            return Response({'error': 'Недійсні облікові дані'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
         refresh = RefreshToken.for_user(user)
 
@@ -147,7 +147,7 @@ class PasswordResetApiView(APIView):
                 user = get_user_model().objects.get(email=serializer.data['email'])
             except Exception:
                 return Response(
-                    {"error": "Користувач з таким email не існує"},
+                    {"error": "The user with this email does not exist"},
                     status=status.HTTP_403_FORBIDDEN
                 )
 

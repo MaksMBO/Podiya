@@ -133,25 +133,25 @@ class EventViewSet(viewsets.ModelViewSet):
 
         if date_from:
             if not check_datetime_format.validate_datetime_format(date_from):
-                raise ValidationError({"error": "Некоректний формат вводу дати"})
+                raise ValidationError({"error": "Date input format is incorrect"})
 
             queryset = queryset.filter(time__gte=date_from)
 
         if date_to:
             if not check_datetime_format.validate_datetime_format(date_to):
-                raise ValidationError({"error": "Некоректний формат вводу дати"})
+                raise ValidationError({"error": "Date input format is incorrect"})
 
             queryset = queryset.filter(time__lte=date_to)
 
         if price_from:
             if not price_from.isdigit():
-                raise ValidationError({"error": "Недійсний ввід для 'price_from', має бути цілим числом"})
+                raise ValidationError({"error": "Invalid input for 'price_from', must be an integer"})
 
             queryset = queryset.filter(price__gte=price_from)
 
         if price_to:
             if not price_to.isdigit():
-                raise ValidationError({"error": "Недійсний ввід для 'price_to', має бути цілим числом"})
+                raise ValidationError({"error": "Invalid input for 'price_to', must be an integer"})
 
             queryset = queryset.filter(price__lte=price_to)
 

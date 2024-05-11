@@ -58,7 +58,7 @@ class UserAndProfileEditSerializer(serializers.Serializer):
         profile_instance = instance
 
         if not user_data and not profile_data:
-            message = {"error": "Для редагування потрібно ввести дані користувача або профілю."}
+            message = {"error": "To edit, you need to enter user or profile data."}
             raise serializers.ValidationError(message)
 
         if user_data:

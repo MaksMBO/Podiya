@@ -64,7 +64,7 @@ class TransactionCreateView(generics.CreateAPIView):
         payment_card = PaymentCard.objects.filter(id=card_id.id, user=user).first()
 
         if not payment_card:
-            return Response({"error": "Користувач не є власником карти"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "The user is not the owner of the card"}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
