@@ -8,15 +8,14 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 current_directory = os.path.dirname(__file__)
-env_path = os.path.join(BASE_DIR, ".env")
+env_path = os.path.join(BASE_DIR, "..", ".env")
 config = dotenv_values(env_path)
-
 
 SECRET_KEY = config.get('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = [config.get('ALLOWED_HOSTS')]
+ALLOWED_HOSTS = config.get('ALLOWED_HOSTS').split(",")
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -134,7 +133,6 @@ SIMPLE_JWT = {
 #
 # SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 # SESSION_CACHE_ALIAS = 'default'
-
 
 
 LANGUAGE_CODE = 'en-us'
