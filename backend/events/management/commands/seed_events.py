@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils import timezone
 
-from events.models import Event, Tag
+from events.models import Event, Tag, City
 from random import choice, randint
 from faker import Faker
 
@@ -18,6 +18,7 @@ class Command(BaseCommand):
             users = get_user_model().objects.filter(
                 Q(is_staff=True) | Q(is_superuser=True) | Q(is_content_maker=True)
             )
+            cities = City.objects.all()
             tags = list(Tag.objects.all())
             if not tags:
                 self.stdout.write(self.style.ERROR(
@@ -25,6 +26,7 @@ class Command(BaseCommand):
                 return
             for _ in range(20):
                 user = choice(users)
+                city = choice(cities)
                 event = Event(
                     name=fake.sentence(nb_words=5),
                     description=fake.text(max_nb_chars=200),
@@ -32,7 +34,8 @@ class Command(BaseCommand):
                     time=timezone.make_aware(fake.future_datetime(end_date='+30d')),
                     creator=user,
                     image=f'events/test_event.webp',
-                    location=f'{fake.city()}, {fake.street_name()}, {fake.building_number()}'
+                    location_info=f'{fake.street_name()}, {fake.building_number()}',
+                    city=city,
                 )
                 event.full_clean()
                 event.save()

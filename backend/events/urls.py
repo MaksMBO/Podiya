@@ -7,7 +7,7 @@ router = DefaultRouter()
 router.register(r'', EventViewSet, basename='event')
 
 urlpatterns = [
-    path('tags/', TagListCreateView.as_view(), name='tag-list-create'),
-    path('tags/<int:pk>/', TagRetrieveUpdateDestroyView.as_view(), name='tag-retrieve-update'),
-    path('', include(router.urls)),
+    path(r'tags/', TagListCreateView.as_view(), name='tag-list-create'),
+    path(r'tags/<int:pk>/', TagRetrieveUpdateDestroyView.as_view(), name='tag-retrieve-update'),
+    path(r'', include(router.urls)),
 ]

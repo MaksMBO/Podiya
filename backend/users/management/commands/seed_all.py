@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from events.management.commands import seed_events, seed_tags, seed_reviews
+from events.management.commands import seed_events, seed_tags, seed_reviews, seed_cities
 from finances.management.commands import seed_payment_cards, seed_transaction_history
 from users.management.commands import seed_users, seed_user_profiles, seed_content_maker_requests, seed_issue_requests
 from tickets.management.commands import seed_tickets
@@ -16,6 +16,7 @@ class Command(BaseCommand):
         seed_user_profiles.Command().handle()
 
         self.stdout.write("Запуск всіх команд застосунку events...")
+        seed_cities.Command().handle()
         seed_tags.Command().handle()
         seed_events.Command().handle()
         seed_reviews.Command().handle()

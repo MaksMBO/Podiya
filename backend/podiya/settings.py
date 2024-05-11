@@ -2,18 +2,21 @@ import os
 
 from datetime import timedelta
 import dj_database_url
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 from pathlib import Path
-
-load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+current_directory = os.path.dirname(__file__)
+env_path = os.path.join(BASE_DIR, ".env")
+config = dotenv_values(env_path)
+
+
+SECRET_KEY = config.get('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS')]
+ALLOWED_HOSTS = [config.get('ALLOWED_HOSTS')]
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -76,7 +79,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'podiya.wsgi.application'
 
-# if os.getenv('DB_ON_SERVER').lower() == 'true':
+# if config.get('DB_ON_SERVER').lower() == 'true':
 #     DATABASES = {
 #         "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
 #     }
@@ -90,12 +93,12 @@ WSGI_APPLICATION = 'podiya.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'podiya',
-        'USER': 'postgres',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': config.get('ENGINE'),
+        'NAME': config.get('NAME'),
+        'USER': config.get('USER'),
+        'PASSWORD': config.get('PASSWORD'),
+        'HOST': config.get('HOST'),
+        'PORT': config.get('PORT'),
     }
 }
 
@@ -119,18 +122,20 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
 }
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv('CACHES_LOCATION'),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": config.get('CACHES_LOCATION'),
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         }
+#     }
+# }
+#
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+# SESSION_CACHE_ALIAS = 'default'
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
+
 
 LANGUAGE_CODE = 'en-us'
 
@@ -142,18 +147,20 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-if not DEBUG:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL)
+
+# if not DEBUG:
+#     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
-EMAIL_HOST = os.getenv('EMAIL_HOST')
-EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_BACKEND = config.get('EMAIL_BACKEND')
+EMAIL_HOST = config.get('EMAIL_HOST')
+EMAIL_PORT = config.get('EMAIL_PORT')
+EMAIL_HOST_USER = config.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config.get('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True

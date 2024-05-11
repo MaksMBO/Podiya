@@ -1,8 +1,8 @@
 import random
 import redis
 
-from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import status, viewsets, mixins
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,12 +14,15 @@ from rest_framework.generics import (
 from django.contrib.auth import get_user_model
 
 from helper.errors import get_errors_as_string
-from .models import UserProfile
+from helper.paginator import EventPagination
+from .models import UserProfile, IssueRequest, ContentMakerRequest
 from .serializers import UserCreateSerializer, UserSerializer, UserAndProfileEditSerializer, EmailSerializer, \
-    PasswordCodeValidateSerializer
+    PasswordCodeValidateSerializer, IssueRequestSerializer, ContentMakerRequestSerializer, \
+    ContentMakerRequestUpdateSerializer
 from .services import handle_user
 
-redis_con = redis.Redis(decode_responses=True)
+redis_con = redis.Redis(host='podiya_redis', decode_responses=True)
+# redis_con = redis.Redis(decode_responses=True)
 
 
 class UserCreateAPIView(CreateAPIView):
@@ -29,18 +32,18 @@ class UserCreateAPIView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         # TODO
-        # email = request.data.get('email')
-        # if not email:
-        #     return Response(
-        #         {"message": "Email відсутній"},
-        #         status=status.HTTP_400_BAD_REQUEST
-        #     )
-        #
-        # if not redis_con.get(email + "_verified"):
-        #     return Response(
-        #         {"message": "Email не підтверджено"},
-        #         status=status.HTTP_403_FORBIDDEN
-        #     )
+        email = request.data.get('email')
+        if not email:
+            return Response(
+                {"error": "Email відсутній"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not redis_con.get(email + "_verified"):
+            return Response(
+                {"error": "Email не підтверджено"},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         response = super().create(request, *args, **kwargs)
         # redis_con.delete(email + "_verified")
@@ -75,7 +78,19 @@ class UserLoginAPIView(APIView):
             return Response({'error': f"Будь ласка, вкажіть {', '.join(missing_fields)}"},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        user = authenticate(**request.data)
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        try:
+            user = get_user_model().objects.get(username=username, email=email)
+        except get_user_model().DoesNotExist:
+            return Response({'error': "Користувача з такими даними не існує"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if not user.check_password(password):
+            return Response({'error': 'Невірний пароль'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user = authenticate(request, username=username, password=password)
 
         if user is None:
             return Response({'error': 'Недійсні облікові дані'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -112,11 +127,37 @@ class EmailSendCodeView(APIView):
         if serializer.is_valid():
             code = random.randint(100000, 999999)
             # TODO
-            # redis_con.set(serializer.data['email'], code, "300")
+            redis_con.set(serializer.data['email'], code, "300")
             handle_user.handle_send_email_verify(
                 serializer.data['email'],
                 code
             )
+            return Response("Okay", status=status.HTTP_200_OK)
+
+        message = get_errors_as_string(serializer)
+        return Response({"message": message}, status=status.HTTP_403_FORBIDDEN)
+
+
+class PasswordResetApiView(APIView):
+
+    def post(self, request):
+        serializer = EmailSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                user = get_user_model().objects.get(email=serializer.data['email'])
+            except Exception:
+                return Response(
+                    {"error": "Користувач з таким email не існує"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            code = random.randint(100000, 999999)
+            redis_con.set(serializer.data['email'], code, "300")
+            handle_user.handle_send_email_verify(
+                serializer.data['email'],
+                code
+            )
+
             return Response("Okay", status=status.HTTP_200_OK)
 
         message = get_errors_as_string(serializer)
@@ -128,22 +169,64 @@ class CodeValidateApiView(APIView):
     def post(self, request):
         serializer = PasswordCodeValidateSerializer(data=request.data)
         if serializer.is_valid():
-            # real_code = redis_con.get(serializer.data['email'])
-            # if not real_code:
-            #     return Response(
-            #         {"message": "Verification code is expired"},
-            #         status=status.HTTP_403_FORBIDDEN
-            #     )
-            #
-            # is_valid = int(real_code) == serializer.data['code']
-            # if is_valid:
-            #     redis_con.delete(serializer.data['email'])
-            #     redis_con.set(serializer.data['email'] + "_verified", int(True))
-            if serializer.data['code'] == 111111:
-                is_valid = False
-            else:
-                is_valid = True
+            real_code = redis_con.get(serializer.data['email'])
+            if not real_code:
+                return Response(
+                    {"message": "Verification code is expired"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            is_valid = int(real_code) == serializer.data['code']
+            if is_valid:
+                redis_con.delete(serializer.data['email'])
+                redis_con.set(serializer.data['email'] + "_verified", int(True))
+            # if serializer.data['code'] == 111111:
+            #     is_valid = False
+            # else:
+            #     is_valid = True
 
             return Response({"valid": is_valid}, status=status.HTTP_200_OK)
 
         return Response("Okay", status=status.HTTP_200_OK)
+
+
+class IssueRequestViewSet(mixins.CreateModelMixin,
+                          mixins.RetrieveModelMixin,
+                          mixins.DestroyModelMixin,
+                          mixins.ListModelMixin,
+                          viewsets.GenericViewSet):
+    queryset = IssueRequest.objects.all()
+    serializer_class = IssueRequestSerializer
+    pagination_class = EventPagination
+    pagination_class.page_size = 20
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_permissions(self):
+        # if self.action == 'list' or self.action == 'destroy':
+        #     permission_classes = [IsAdminUser]
+        # else:
+        permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+
+class ContentMakerRequestViewSet(viewsets.ModelViewSet):
+    queryset = ContentMakerRequest.objects.all()
+    pagination_class = EventPagination
+    pagination_class.page_size = 20
+
+    def get_serializer_class(self):
+        if self.action in ['update', 'partial_update']:
+            return ContentMakerRequestUpdateSerializer
+        return ContentMakerRequestSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_permissions(self):
+        if self.action in ['list', 'destroy', 'update', 'partial_update']:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]

@@ -16,6 +16,8 @@ class EventSerializer(serializers.ModelSerializer):
         model = Event
         fields = '__all__'
 
+    depth = 1
+
     def get_rating(self, obj):
         average_rating = obj.reviews.aggregate(Avg('rating'))['rating__avg']
         if average_rating is None:
@@ -26,7 +28,7 @@ class EventSerializer(serializers.ModelSerializer):
 class EventUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        exclude = ('price', 'location')
+        exclude = ('price', 'location_info', 'city', 'creator')
 
 
 class ReviewSerializerGet(serializers.ModelSerializer):

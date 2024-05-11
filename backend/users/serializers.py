@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from users.models import UserProfile
+from users.models import UserProfile, ContentMakerRequest
 
 User = get_user_model()
 
@@ -29,7 +29,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'avatar', 'is_staff', 'is_superuser', 'is_content_maker', 'profile', 'registration_date')
+        fields = (
+            'username', 'email', 'avatar', 'is_staff', 'is_superuser', 'is_content_maker', 'profile',
+            'registration_date')
 
 
 class UserEditSerializer(serializers.ModelSerializer):
@@ -79,3 +81,34 @@ class EmailSerializer(serializers.Serializer):
 class PasswordCodeValidateSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.IntegerField()
+
+
+from rest_framework import serializers
+from .models import IssueRequest
+
+
+class IssueRequestSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True, required=False)
+    class Meta:
+        model = IssueRequest
+        fields = '__all__'
+
+    def validate_user(self, value):
+        raise serializers.ValidationError("Неможливо встановити значення для поля 'user'.")
+
+    def validate_request_date(self, value):
+        raise serializers.ValidationError("Неможливо встановити значення для поля 'request_date'.")
+
+
+
+class ContentMakerRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentMakerRequest
+        fields = '__all__'
+        read_only_fields = ('request_date', 'user')
+
+
+class ContentMakerRequestUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentMakerRequest
+        fields = ['is_approved']
