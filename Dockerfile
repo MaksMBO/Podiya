@@ -14,3 +14,4 @@ CMD python manage.py migrate \
 #    && python manage.py seed_all \
     && python manage.py collectstatic --no-input \
     && gunicorn podiya.wsgi:application --bind 0.0.0.0:8000 --log-level info
+ls

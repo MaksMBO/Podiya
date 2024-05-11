@@ -89,6 +89,7 @@ from .models import IssueRequest
 
 class IssueRequestSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True, required=False)
+
     class Meta:
         model = IssueRequest
         fields = '__all__'
@@ -98,7 +99,6 @@ class IssueRequestSerializer(serializers.ModelSerializer):
 
     def validate_request_date(self, value):
         raise serializers.ValidationError("Неможливо встановити значення для поля 'request_date'.")
-
 
 
 class ContentMakerRequestSerializer(serializers.ModelSerializer):
@@ -112,3 +112,8 @@ class ContentMakerRequestUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContentMakerRequest
         fields = ['is_approved']
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    new_password = serializers.CharField()
