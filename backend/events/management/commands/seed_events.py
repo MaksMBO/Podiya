@@ -31,7 +31,7 @@ class Command(BaseCommand):
                     name=fake.sentence(nb_words=5),
                     description=fake.text(max_nb_chars=200),
                     price=randint(0, 1000),
-                    time=timezone.make_aware(fake.future_datetime(end_date='+30d')),
+                    time=timezone.make_aware(fake.future_datetime(end_date='+7d')),
                     creator=user,
                     image=f'events/test_event.webp',
                     location_info=f'{fake.street_name()}, {fake.building_number()}',

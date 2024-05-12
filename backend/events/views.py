@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.db.models import Q, Avg, DecimalField
 from django.db.models.functions import Coalesce
@@ -189,22 +189,28 @@ class EventViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=['GET'], pagination_class=EventPagination)
     def by_user(self, request):
         events = Event.objects.filter(creator=request.user)
-        serializer = EventSerializer(events, many=True)
-        return Response(serializer.data)
+        page = self.paginate_queryset(events)
+        serializer = EventSerializer(page, many=True)
 
-    @action(detail=False, methods=['GET'])
+        return self.get_paginated_response(serializer.data)
+
+    @action(detail=False, methods=['GET'], pagination_class=EventPagination)
     def current_week_events(self, request):
         today = timezone.now().date()
-        start_of_week = today - timedelta(days=today.weekday())
-        end_of_week = start_of_week + timedelta(days=6)
+        end_of_week = today + timedelta(days=7)
+
+        start_of_week = timezone.make_aware(datetime.combine(today, datetime.min.time()))
+        end_of_week = timezone.make_aware(datetime.combine(end_of_week, datetime.max.time()))
 
         events = Event.objects.filter(time__range=[start_of_week, end_of_week])
 
-        serializer = self.get_serializer(events, many=True)
-        return Response(serializer.data)
+        page = self.paginate_queryset(events)
+        serializer = self.get_serializer(page, many=True)
+
+        return self.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=['GET'])
     def comments(self, request, pk=None):
