@@ -85,55 +85,33 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Event.objects.all()
-        search_param = self.request.query_params.get('search', None)
-        date_from = self.request.query_params.get('date_from', None)
-        date_to = self.request.query_params.get('date_to', None)
-        price_from = self.request.query_params.get('price_from', None)
-        price_to = self.request.query_params.get('price_to', None)
-        sort = self.request.query_params.get('sort', None)
-        tags = self.request.query_params.get('tags', None)
-        city = self.request.query_params.get('city', None)
+        query_params = self.request.query_params
 
-        if search_param is not None:
-            queryset = queryset.filter(Q(name__icontains=search_param))
+        filters = {
+            'name__icontains': query_params.get('search'),
+            'time__gte': query_params.get('date_from'),
+            'time__lte': query_params.get('date_to'),
+            'price__gte': query_params.get('price_from'),
+            'price__lte': query_params.get('price_to'),
+            'city__name': query_params.get('city')
+        }
 
-        if date_from:
-            if not check_datetime_format.validate_datetime_format(date_from):
-                raise ValidationError({"error": "Date input format is incorrect"})
+        for key, value in filters.items():
+            if value is not None:
+                if 'date' in key and not check_datetime_format.validate_datetime_format(value):
+                    raise ValidationError({"error": f"{key} input format is incorrect"})
+                if 'price' in key and not value.isdigit():
+                    raise ValidationError({"error": f"Invalid input for '{key}', must be an integer"})
+                queryset = queryset.filter(**{key: value})
 
-            queryset = queryset.filter(time__gte=date_from)
+        sort = query_params.get('sort')
+        if sort in ['price_asc', 'price_desc']:
+            queryset = queryset.order_by(f'{"-" if sort == "price_desc" else ""}price')
 
-        if date_to:
-            if not check_datetime_format.validate_datetime_format(date_to):
-                raise ValidationError({"error": "Date input format is incorrect"})
-
-            queryset = queryset.filter(time__lte=date_to)
-
-        if price_from:
-            if not price_from.isdigit():
-                raise ValidationError({"error": "Invalid input for 'price_from', must be an integer"})
-
-            queryset = queryset.filter(price__gte=price_from)
-
-        if price_to:
-            if not price_to.isdigit():
-                raise ValidationError({"error": "Invalid input for 'price_to', must be an integer"})
-
-            queryset = queryset.filter(price__lte=price_to)
-
-        if sort is not None:
-            if sort == 'price_asc':
-                queryset = queryset.order_by('price')
-            elif sort == 'price_desc':
-                queryset = queryset.order_by('-price')
-
+        tags = query_params.get('tags')
         if tags is not None:
             tags = tags.split(',')
-            for tag in tags:
-                queryset = queryset.filter(tags__name=tag)
-
-        if city is not None:
-            queryset = queryset.filter(city__name=city)
+            queryset = queryset.filter(tags__name__in=tags)
 
         return queryset
 
