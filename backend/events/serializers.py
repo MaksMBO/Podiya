@@ -41,3 +41,11 @@ class ReviewSerializerPost(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ('review_text', 'rating', 'user')
+
+
+class RatingTagSerializer(serializers.ModelSerializer):
+    average_rating = serializers.FloatField()
+
+    class Meta:
+        model = Tag
+        fields = ['name', 'average_rating']

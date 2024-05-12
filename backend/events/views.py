@@ -1,15 +1,17 @@
 from datetime import timedelta
 
-from django.db.models import Q
+from django.db.models import Q, Avg, DecimalField
+from django.db.models.functions import Coalesce
 from rest_framework import generics, permissions, response, status, viewsets
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from helper import check_datetime_format
 from helper.paginator import EventPagination
 from .serializers import TagSerializer, EventSerializer, EventUpdateSerializer, ReviewSerializerGet, \
-    ReviewSerializerPost
+    ReviewSerializerPost, RatingTagSerializer
 from .models import Tag, Event, Review, City
 from django.utils import timezone
 from rest_framework.response import Response
@@ -52,6 +54,23 @@ class TagListCreateView(TagBaseView, generics.ListCreateAPIView):
 class TagRetrieveUpdateDestroyView(TagBaseView, generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         self.perform_action(serializer)
+
+
+class TagListView(ListAPIView):
+    """
+    A simple ListAPIView for viewing tags.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = EventPagination
+    serializer_class = RatingTagSerializer
+
+    def get_queryset(self):
+        """
+        Return a list of all the existing tags, ordered by average rating.
+        """
+        return Tag.objects.annotate(
+            average_rating=Coalesce(Avg('events__reviews__rating'), 0, output_field=DecimalField())
+        ).order_by('-average_rating')
 
 
 # -----------------------------------------------------------------------------------------------
