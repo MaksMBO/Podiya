@@ -20,9 +20,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     def get_rating(self, obj):
         average_rating = obj.reviews.aggregate(Avg('rating'))['rating__avg']
-        if average_rating is None:
-            return 0
-        return round(average_rating, 1)
+        return round(average_rating or 0, 1)
 
 
 class EventUpdateSerializer(serializers.ModelSerializer):

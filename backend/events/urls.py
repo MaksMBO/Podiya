@@ -1,7 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .views import TagListCreateView, TagRetrieveUpdateDestroyView, EventViewSet, TagListView
+from .views.tags import TagListCreateView, TagRetrieveUpdateDestroyView, TagListView
+from .views.events import EventViewSet
 
 router = DefaultRouter()
 router.register(r'', EventViewSet, basename='event')

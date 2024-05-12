@@ -2,6 +2,7 @@ from datetime import timedelta, datetime
 
 from django.db.models import Q, Avg, DecimalField
 from django.db.models.functions import Coalesce
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, response, status, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
@@ -9,6 +10,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from helper import check_datetime_format
+from helper.custom_permission import IsAdminContentMakerOrReadOnly
 from helper.paginator import EventPagination
 from .serializers import TagSerializer, EventSerializer, EventUpdateSerializer, ReviewSerializerGet, \
     ReviewSerializerPost, RatingTagSerializer
@@ -16,64 +18,6 @@ from .models import Tag, Event, Review, City
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.decorators import action
-
-
-class IsAdminContentMakerOrReadOnly(permissions.BasePermission):
-    """
-    Custom permission to only allow administrators to edit or delete tags.
-    """
-
-    def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        else:
-            return request.user.is_staff or request.user.is_superuser or request.user.is_content_maker
-
-
-# ---------------------------------------TAGS--------------------------------------------------------
-class TagBaseView(generics.GenericAPIView):
-    queryset = Tag.objects.all()
-    serializer_class = TagSerializer
-    permission_classes = [IsAdminContentMakerOrReadOnly]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_staff or user.is_content_maker:
-            return Tag.objects.all()
-        return Tag.objects.none()
-
-    def perform_action(self, serializer):
-        serializer.save()
-
-
-class TagListCreateView(TagBaseView, generics.ListCreateAPIView):
-    def perform_create(self, serializer):
-        self.perform_action(serializer)
-
-
-class TagRetrieveUpdateDestroyView(TagBaseView, generics.RetrieveUpdateDestroyAPIView):
-    def perform_update(self, serializer):
-        self.perform_action(serializer)
-
-
-class TagListView(ListAPIView):
-    """
-    A simple ListAPIView for viewing tags.
-    """
-    permission_classes = [permissions.IsAuthenticated]
-    pagination_class = EventPagination
-    serializer_class = RatingTagSerializer
-
-    def get_queryset(self):
-        """
-        Return a list of all the existing tags, ordered by average rating.
-        """
-        return Tag.objects.annotate(
-            average_rating=Coalesce(Avg('events__reviews__rating'), 0, output_field=DecimalField())
-        ).order_by('-average_rating')
-
-
-# -----------------------------------------------------------------------------------------------
 
 
 # ---------------------------------------EVENTS/Comments--------------------------------------------------------
@@ -118,22 +62,25 @@ class EventViewSet(viewsets.ModelViewSet):
         data = request.data
         tags = data.get('tags', '').split(",")
 
-        instance.name = data.get('name', instance.name)
-        instance.description = data.get('description', instance.description)
-        instance.price = data.get('price', instance.price)
-        instance.image = data.get('image', instance.image)
-        instance.city = City.objects.get(id=data.get('city', instance.city.id))
-        instance.location_info = data.get('location_info', instance.location_info)
-        instance.time = data.get('time', instance.time)
-        instance.creator = request.user
+        try:
+            instance.name = data.get('name', instance.name)
+            instance.description = data.get('description', instance.description)
+            instance.price = data.get('price', instance.price)
+            instance.image = data.get('image', instance.image)
+            instance.city = get_object_or_404(City, id=data.get('city', instance.city.id))
+            instance.location_info = data.get('location_info', instance.location_info)
+            instance.time = data.get('time', instance.time)
+            instance.creator = request.user
 
-        instance.tags.clear()
-        instance.tags.add(*tags)
+            instance.tags.clear()
+            instance.tags.add(*tags)
 
-        instance.save()
+            instance.save()
 
-        serializer = EventSerializer(instance)
-        return Response(serializer.data)
+            serializer = EventSerializer(instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get_queryset(self):
         queryset = Event.objects.all()
