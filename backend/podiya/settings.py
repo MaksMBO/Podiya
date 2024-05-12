@@ -9,8 +9,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 current_directory = os.path.dirname(__file__)
+env_path = os.path.join(BASE_DIR, ".env")
+if env_path not in os.environ:
+    env_path = os.path.join(BASE_DIR, "..", ".env")
 
-env_path = os.path.join(BASE_DIR, "..", ".env")
 config = dotenv_values(env_path)
 SECRET_KEY = config.get('SECRET_KEY')
 

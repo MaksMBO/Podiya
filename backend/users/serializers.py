@@ -115,5 +115,5 @@ class ContentMakerRequestUpdateSerializer(serializers.ModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    email = serializers.EmailField()
     new_password = serializers.CharField()
