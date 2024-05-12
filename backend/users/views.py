@@ -16,14 +16,17 @@ from django.contrib.auth import get_user_model
 
 from helper.errors import get_errors_as_string
 from helper.paginator import EventPagination
+from podiya.settings import config
 from .models import UserProfile, IssueRequest, ContentMakerRequest
 from .serializers import UserCreateSerializer, UserSerializer, UserAndProfileEditSerializer, EmailSerializer, \
     PasswordCodeValidateSerializer, IssueRequestSerializer, ContentMakerRequestSerializer, \
     ContentMakerRequestUpdateSerializer, ChangePasswordSerializer
 from .services import handle_user
 
-redis_con = redis.Redis(host='podiya_redis', decode_responses=True)
-#redis_con = redis.Redis(decode_responses=True)
+if config.get('DB_ON_SERVER') == 'True':
+    redis_con = redis.Redis(host='podiya_redis', decode_responses=True)
+else:
+    redis_con = redis.Redis(decode_responses=True)
 
 
 class UserCreateAPIView(CreateAPIView):
@@ -237,9 +240,9 @@ class ChangePasswordView(APIView):
     def put(self, request, *args, **kwargs):
         serializer = ChangePasswordSerializer(data=request.data)
         if serializer.is_valid():
-            user = get_object_or_404(get_user_model(), username=serializer.validated_data['username'])
+            user = get_object_or_404(get_user_model(), email=serializer.validated_data['email'])
             new_password = serializer.validated_data['new_password']
             user.set_password(new_password)
             user.save()
-            return Response({"detail": "Password changed successfully"}, status=status.HTTP_200_OK)
+            return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
