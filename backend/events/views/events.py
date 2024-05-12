@@ -1,20 +1,19 @@
-from datetime import timedelta, datetime
-
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, permissions, status, viewsets
-from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated
-
-from events.models import Event, City, Review
-from events.serializers import EventSerializer, EventUpdateSerializer, ReviewSerializerGet, ReviewSerializerPost
-from helper import check_datetime_format
-from helper.custom_permission import IsAdminContentMakerOrReadOnly
-from helper.paginator import EventPagination
-
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework import permissions, status, viewsets
+from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
+
+from datetime import timedelta, datetime
+
+from events.models import Event, City, Review
+from events.serializers.events import EventSerializer, EventUpdateSerializer
+from events.serializers.reviews import ReviewSerializerGet, ReviewSerializerPost
+from helper import check_datetime_format
+from helper.custom_permission import IsAdminContentMakerOrReadOnly
+from helper.paginator import EventPagination
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -27,11 +26,18 @@ class EventViewSet(viewsets.ModelViewSet):
     pagination_class = EventPagination
 
     def get_serializer_class(self):
+        """
+        Returns the appropriate serializer class based on the action.
+        """
         if self.action == 'update':
             return EventUpdateSerializer
         return EventSerializer
 
     def create(self, request, *args, **kwargs):
+        """
+        Creates a new event.
+        Required fields are 'name', 'description', 'price', 'image', 'city', 'location_info', 'time'.
+        """
         data = request.data
         required_keys = ['name', 'description', 'price', 'image', 'city', 'location_info', 'time']
         missing_keys = [key for key in required_keys if key not in data]
@@ -62,6 +68,10 @@ class EventViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
+        """
+        Updates an existing event.
+        If 'tags' are provided, the existing tags are cleared and replaced with the new ones.
+        """
         instance = self.get_object()
         data = request.data
         tags = data.get('tags', '').split(",")
@@ -84,6 +94,10 @@ class EventViewSet(viewsets.ModelViewSet):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def get_queryset(self):
+        """
+        Returns a filtered queryset based on the query parameters.
+        Supports filtering by 'search', 'date_from', 'date_to', 'price_from', 'price_to', 'city', and 'tags'.
+        """
         queryset = Event.objects.all()
         query_params = self.request.query_params
 
@@ -117,6 +131,9 @@ class EventViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'], pagination_class=EventPagination)
     def by_user(self, request):
+        """
+        Returns all events created by the current user.
+        """
         events = Event.objects.filter(creator=request.user)
         page = self.paginate_queryset(events)
         serializer = EventSerializer(page, many=True)
@@ -125,6 +142,9 @@ class EventViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'], pagination_class=EventPagination)
     def current_week_events(self, request):
+        """
+        Returns all events happening in the current week.
+        """
         today = timezone.now().date()
         end_of_week = today + timedelta(days=7)
 
@@ -140,6 +160,9 @@ class EventViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['GET'])
     def comments(self, request, pk=None):
+        """
+        Returns all comments for a specific event.
+        """
         event = self.get_object()
         comments = Review.objects.filter(event=event)
         serializer = ReviewSerializerGet(comments, many=True)
@@ -147,6 +170,9 @@ class EventViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['POST'], permission_classes=[IsAuthenticated])
     def add_comment(self, request, pk=None):
+        """
+        Adds a new comment to a specific event. Requires authentication.
+        """
         event = self.get_object()
         serializer = ReviewSerializerPost(data=request.data)
         if serializer.is_valid():

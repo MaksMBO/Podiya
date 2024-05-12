@@ -5,6 +5,9 @@ from events.services.validate_rating import validate_rating
 
 
 class Review(models.Model):
+    """
+    Model representing a review.
+    """
     review_text = models.TextField()
     rating = models.DecimalField(max_digits=2, decimal_places=1, default=0, validators=[validate_rating])
     review_date = models.DateTimeField(auto_now_add=True)

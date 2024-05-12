@@ -1,11 +1,10 @@
 from django.db.models import Avg, DecimalField
 from django.db.models.functions import Coalesce
 from rest_framework import generics, permissions
-
 from rest_framework.generics import ListAPIView
 
 from events.models import Tag
-from events.serializers import TagSerializer, RatingTagSerializer
+from events.serializers.tags import TagSerializer, RatingTagSerializer
 from helper.custom_permission import IsAdminContentMakerOrReadOnly
 from helper.paginator import EventPagination
 

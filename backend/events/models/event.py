@@ -6,6 +6,12 @@ from helper.image_info import handle_image
 
 
 class Event(models.Model):
+    """
+    Model representing an event.
+
+    Methods:
+        save: Custom save method to handle validation and image processing.
+    """
     name = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
@@ -27,9 +33,15 @@ class Event(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        """
+        Custom save method to handle validation and image processing.
+
+        Raises:
+            ValidationError: If the creator does not have the required attributes.
+        """
         if (not hasattr(self.creator, 'is_staff') and
                 not hasattr(self.creator, 'is_content_maker')):
             raise ValidationError(
-                "Створювач повинен мати принаймні один з наступних атрибутів: 'is_staff' або 'is_content_maker'.")
+                "The creator must have at least one of the following attributes: 'is_staff' or 'is_content_maker'.")
         super().save(*args, **kwargs)
         handle_image(self, self.image)
