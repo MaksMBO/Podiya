@@ -26,7 +26,8 @@ class EventSerializer(serializers.ModelSerializer):
 class EventUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        exclude = ('price', 'location_info', 'city', 'creator')
+        fields = '__all__'
+        read_only_fields = ('price', 'location_info', 'city', 'creator')
 
 
 class ReviewSerializerGet(serializers.ModelSerializer):

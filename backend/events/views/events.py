@@ -69,19 +69,16 @@ class EventViewSet(viewsets.ModelViewSet):
         try:
             instance.name = data.get('name', instance.name)
             instance.description = data.get('description', instance.description)
-            instance.price = data.get('price', instance.price)
             instance.image = data.get('image', instance.image)
-            instance.city = get_object_or_404(City, id=data.get('city', instance.city.id))
-            instance.location_info = data.get('location_info', instance.location_info)
             instance.time = data.get('time', instance.time)
-            instance.creator = request.user
 
-            instance.tags.clear()
-            instance.tags.add(*tags)
+            if tags != ['']:
+                instance.tags.clear()
+                instance.tags.add(*tags)
 
             instance.save()
 
-            serializer = EventSerializer(instance)
+            serializer = EventUpdateSerializer(instance)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
