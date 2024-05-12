@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import UserLoginAPIView, AccessRecoveryApiView, UserCreateAPIView, UserRetrieveAPIView, \
     UserAndProfileEditAPIView, EmailSendCodeView, CodeValidateApiView, PasswordResetApiView, IssueRequestViewSet, \
-    ContentMakerRequestViewSet
+    ContentMakerRequestViewSet, ChangePasswordView
 
 router = DefaultRouter()
 router.register(r'issue-requests', IssueRequestViewSet, basename='issue-request')
@@ -19,5 +19,6 @@ urlpatterns = [
     path(r'email_verify_validate/', CodeValidateApiView.as_view(), name='email_verify_validate'),
     path(r'password_reset/', PasswordResetApiView.as_view(), name="password_reset"),
     path(r'password_change_verify_validate/', CodeValidateApiView.as_view(), name='password_change_verify_validate'),
+    path(r'change-password/', ChangePasswordView.as_view(), name='change_password'),
     path(r'', include(router.urls)),
 ]

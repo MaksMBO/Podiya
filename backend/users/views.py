@@ -1,5 +1,6 @@
 import random
 import redis
+from django.shortcuts import get_object_or_404
 
 from rest_framework import status, viewsets, mixins
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
@@ -18,7 +19,7 @@ from helper.paginator import EventPagination
 from .models import UserProfile, IssueRequest, ContentMakerRequest
 from .serializers import UserCreateSerializer, UserSerializer, UserAndProfileEditSerializer, EmailSerializer, \
     PasswordCodeValidateSerializer, IssueRequestSerializer, ContentMakerRequestSerializer, \
-    ContentMakerRequestUpdateSerializer
+    ContentMakerRequestUpdateSerializer, ChangePasswordSerializer
 from .services import handle_user
 
 redis_con = redis.Redis(host='podiya_redis', decode_responses=True)
@@ -230,3 +231,15 @@ class ContentMakerRequestViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+
+
+class ChangePasswordView(APIView):
+    def put(self, request, *args, **kwargs):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user = get_object_or_404(get_user_model(), username=serializer.validated_data['username'])
+            new_password = serializer.validated_data['new_password']
+            user.set_password(new_password)
+            user.save()
+            return Response({"detail": "Password changed successfully"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

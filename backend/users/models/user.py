@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -50,6 +51,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+    def change_password(self, new_password):
+        self.password = make_password(new_password)
+        self.save()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
