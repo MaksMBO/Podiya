@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Password Reset</title>
+
+        <style>
+            body {
+                font-family: "Arial", sans-serif;
+                background-color: #f2f2f2;
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+                text-align: center;
+                padding: 20px;
+            }
+            .header h1 {
+                color: #007bff;
+                margin: 0;
+            }
+            .content {
+                padding: 20px;
+            }
+            .code {
+                font-size: 24px;
+                font-weight: bold;
+                color: #a992ea;
+            }
+            .footer {
+                text-align: center;
+                padding: 20px;
+                color: #f2f2f2;
+                border-radius: 0 0 10px 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <table
+            align="center"
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            width="600"
+            style="border-collapse: collapse"
+        >
+            <tr>
+                <td align="center" bgcolor="#a992ea" style="padding: 40px 0">
+                    <h1 style="color: #ffffff">
+                        {% if page == "email_confirmation" %}
+                            Підтвердження Email
+                        {% elif page == "password_reset" %}
+                            Відновлення паролю
+                        {% endif %}
+                    </h1>
+                </td>
+            </tr>
+            <tr>
+                <td bgcolor="#ffffff" style="padding: 40px 30px">
+                    <div class="content">
+                        {% if page == "email_confirmation" %}
+                        <p>Вітаємо</p>
+                        <p>
+                            Ми отримали запит на підтвердження вашої електронної адреси,
+                            пов’язаної з вашим обліковим записом на Podiya. Якщо ви не
+                            надсилали цей запит, не звертайте уваги на цей електронний лист.
+                            Ваша безпека та конфіденційність є нашими головними пріоритетами.
+                        </p>
+                        <p>
+                            Щоб завершити процес підтвердження,
+                            скористайтеся таким кодом підтвердження:
+                            <span class="code">{{ code }}</span>
+                        </p>
+                        <p>
+                            Якщо ви не надсилали запит на підтвердження своєї електронної
+                            адреси, з вашого боку не потрібно робити жодних додаткових дій.
+                            Однак, якщо у вас виникли проблеми або вам потрібна допомога,
+                            наша спеціальна команда підтримки готова допомогти. Просто
+                            зв’яжіться з нами, і ми швидко вам допоможемо.
+                        </p>
+                        <p>
+                            Дякуємо, що обрали Podiya
+                        </p>
+                        <p>З повагою,</p>
+                        <p>PODIYA</p>
+                        {% elif page == "password_reset" %}
+                        <p>Вітаємо</p>
+                        <p>
+                            Ми отримали запит на скидання пароля вашого
+                            облікового запису на Podiya. Якщо ви не ініціювали
+                            цей запит, будь ласка, проігноруйте цей лист.
+                        </p>
+                        <p>
+                            Ваш код підтвердження для скидання пароля:
+                            <span class="code">{{ code }}</span>
+                        </p>
+                        <p>
+                            Якщо ви не надсилали запит на скидання пароля,
+                            немає потреби в подальших діях.
+                        </p>
+                        <p>
+                            Якщо вам потрібна допомога, будь ласка,
+                            звертайтеся до нашої служби підтримки.
+                        </p>
+                        <p>З повагою,</p>
+                        <p>PODIYA</p>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <!-- Підпис -->
+                <td bgcolor="#a992ea" style="padding: 20px; text-align: center">
+                    <div class="footer">
+                        &copy; PODIYA
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

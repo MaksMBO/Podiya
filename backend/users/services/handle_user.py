@@ -16,11 +16,14 @@ def handle_send_email_verify(email: str, code: int) -> None:
         "page": "email_confirmation"
     }
 
+    template = render_to_string(
+        "users/email_confirm.html", context)
+
     send_mail(
         "Verify email",
         f"{code}",
         os.getenv('EMAIL_HOST_USER'),
         [email],
         fail_silently=False,
-        # html_message=template
+        html_message=template
     )
