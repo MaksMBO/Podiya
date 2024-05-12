@@ -111,7 +111,7 @@ class EventViewSet(viewsets.ModelViewSet):
         tags = query_params.get('tags')
         if tags is not None:
             tags = tags.split(',')
-            queryset = queryset.filter(tags__name__in=tags)
+            queryset = queryset.filter(tags__name__in=tags).distinct()
 
         return queryset
 
