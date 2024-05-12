@@ -202,7 +202,6 @@ class IssueRequestViewSet(mixins.CreateModelMixin,
     queryset = IssueRequest.objects.all()
     serializer_class = IssueRequestSerializer
     pagination_class = EventPagination
-    pagination_class.page_size = 20
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -218,7 +217,6 @@ class IssueRequestViewSet(mixins.CreateModelMixin,
 class ContentMakerRequestViewSet(viewsets.ModelViewSet):
     queryset = ContentMakerRequest.objects.all()
     pagination_class = EventPagination
-    pagination_class.page_size = 20
 
     def get_serializer_class(self):
         if self.action in ['update', 'partial_update']:

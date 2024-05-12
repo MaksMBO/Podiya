@@ -68,7 +68,6 @@ class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly & IsAdminContentMakerOrReadOnly]
     pagination_class = EventPagination
-    pagination_class.page_size = 12
 
     def get_serializer_class(self):
         if self.action == 'update':
