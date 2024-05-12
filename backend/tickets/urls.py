@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserTicketView, SingleUserTicketView
+from tickets.views.tickets import UserTicketView, SingleUserTicketView
 
 urlpatterns = [
     path('', UserTicketView.as_view(), name='user-tickets'),

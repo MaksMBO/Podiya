@@ -19,6 +19,16 @@ from helper.paginator import EventPagination
 class EventViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows events to be viewed or edited.
+
+    Methods:
+        get_serializer_class: Returns the appropriate serializer class based on the action.
+        create: Creates a new event.
+        update: Updates an existing event.
+        get_queryset: Returns a filtered queryset based on query parameters.
+        by_user: Returns all events created by the current user.
+        current_week_events: Returns all events happening in the current week.
+        comments: Returns all comments for a specific event.
+        add_comment: Adds a new comment to a specific event.
     """
     queryset = Event.objects.all()
     serializer_class = EventSerializer

@@ -7,6 +7,9 @@ class IsAdminContentMakerOrReadOnly(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
+        """
+        Check if the user has permission to perform the action.
+        """
         if request.method in permissions.SAFE_METHODS:
             return True
         else:

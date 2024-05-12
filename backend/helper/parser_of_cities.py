@@ -2,7 +2,13 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def get_cities():
+def get_cities() -> list[str]:
+    """
+    Get the list of cities in Ukraine from Wikipedia.
+
+    Returns:
+        list: A list of city names in Ukraine.
+    """
     url = "https://uk.wikipedia.org/wiki/Список_міст_України"
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')

@@ -1,14 +1,12 @@
 from rest_framework import serializers
-from .models import PaymentCard, TransactionHistory
-
-
-class PaymentCardSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PaymentCard
-        fields = '__all__'
+from finances.models import TransactionHistory
 
 
 class TransactionHistorySerializer(serializers.ModelSerializer):
+    """
+    Serializer for TransactionHistory model instances.
+    """
+
     class Meta:
         model = TransactionHistory
         fields = '__all__'

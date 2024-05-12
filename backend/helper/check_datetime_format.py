@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-def validate_datetime_format(date_string):
+def validate_datetime_format(date_string: str) -> bool:
     try:
         datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%S.%fZ')
         return True
