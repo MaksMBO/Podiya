@@ -3,6 +3,9 @@ from django.contrib.auth import get_user_model
 
 
 class ContentMakerRequest(models.Model):
+    """
+    Model representing requests for content maker role.
+    """
     text = models.TextField()
     is_approved = models.BooleanField(default=False)
     request_date = models.DateTimeField(auto_now_add=True)

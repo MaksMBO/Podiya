@@ -7,7 +7,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def handle_send_email_verify(email, code):
+def handle_send_email_verify(email: str, code: int) -> None:
+    """
+    Sends an email verification code to the specified email address.
+    """
     context = {
         "code": code,
         "page": "email_confirmation"

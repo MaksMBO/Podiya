@@ -1,9 +1,10 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .views import UserLoginAPIView, AccessRecoveryApiView, UserCreateAPIView, UserRetrieveAPIView, \
-    UserAndProfileEditAPIView, EmailSendCodeView, CodeValidateApiView, PasswordResetApiView, IssueRequestViewSet, \
-    ContentMakerRequestViewSet, ChangePasswordView
+from users.views.user import UserLoginAPIView, AccessRecoveryApiView, UserCreateAPIView, UserRetrieveAPIView, \
+    UserAndProfileEditAPIView, EmailSendCodeView, CodeValidateApiView, PasswordResetApiView, ChangePasswordView
+from users.views.issue_request import IssueRequestViewSet
+from users.views.content_maker_request import ContentMakerRequestViewSet
 
 router = DefaultRouter()
 router.register(r'issue-requests', IssueRequestViewSet, basename='issue-request')

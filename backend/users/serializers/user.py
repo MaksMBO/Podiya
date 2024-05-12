@@ -1,12 +1,16 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from users.models import UserProfile, ContentMakerRequest
+from users.models import UserProfile
 
 User = get_user_model()
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for creating a new user.
+    """
+
     class Meta:
         model = User
         fields = ('username', 'email', 'password')
@@ -18,13 +22,33 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return User.objects.create_user(**validated_data)
 
 
+class UserProfileEditSerializer(serializers.ModelSerializer):
+    """
+    Serializer for editing user profile information.
+    """
+
+    class Meta:
+        model = UserProfile
+        fields = ('about',)
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user profile information.
+    """
+
     class Meta:
         model = UserProfile
         fields = ('about', 'followers')
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user data.
+
+    It serializes the user's basic information including username, email,
+    avatar, staff/superuser/content maker status, profile data, and registration date.
+    """
     profile = UserProfileSerializer()
 
     class Meta:
@@ -35,18 +59,22 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserEditSerializer(serializers.ModelSerializer):
+    """
+    Serializer for editing user information.
+    """
+
     class Meta:
         model = User
         fields = ('username', 'avatar')
 
 
-class UserProfileEditSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = ('about',)
-
-
 class UserAndProfileEditSerializer(serializers.Serializer):
+    """
+    Serializer for editing both user and profile information.
+
+    It handles the update of both user and profile data and validates
+    the input accordingly.
+    """
     user = UserEditSerializer(required=False)
     profile = UserProfileEditSerializer(required=False)
 
@@ -75,45 +103,23 @@ class UserAndProfileEditSerializer(serializers.Serializer):
 
 
 class EmailSerializer(serializers.Serializer):
+    """
+    Serializer for email data.
+    """
     email = serializers.EmailField()
 
 
 class PasswordCodeValidateSerializer(serializers.Serializer):
+    """
+    Serializer for validating email and code for password reset.
+    """
     email = serializers.EmailField()
     code = serializers.IntegerField()
 
 
-from rest_framework import serializers
-from .models import IssueRequest
-
-
-class IssueRequestSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True, required=False)
-
-    class Meta:
-        model = IssueRequest
-        fields = '__all__'
-
-    def validate_user(self, value):
-        raise serializers.ValidationError("Неможливо встановити значення для поля 'user'.")
-
-    def validate_request_date(self, value):
-        raise serializers.ValidationError("Неможливо встановити значення для поля 'request_date'.")
-
-
-class ContentMakerRequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ContentMakerRequest
-        fields = '__all__'
-        read_only_fields = ('request_date', 'user')
-
-
-class ContentMakerRequestUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ContentMakerRequest
-        fields = ['is_approved']
-
-
 class ChangePasswordSerializer(serializers.Serializer):
+    """
+    Serializer for changing the user's password.
+    """
     email = serializers.EmailField()
     new_password = serializers.CharField()

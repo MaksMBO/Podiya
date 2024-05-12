@@ -6,13 +6,20 @@ from helper.image_info import handle_image
 
 
 class CustomUserManager(BaseUserManager):
+    """
+    Custom manager for the User model.
+    """
+
     def create_user(self, email, password=None, **extra_fields):
+        """
+        Create and save a regular user.
+        """
         if not email:
-            raise ValueError('Поле електронної пошти повинне бути заповненим')
+            raise ValueError('The e-mail field must be filled')
         if not extra_fields.get('username'):
-            raise ValueError('Поле імені користувача повинне бути заповненим')
+            raise ValueError('Username field must be filled')
         if not password:
-            raise ValueError('Пароль повинен бути встановленим')
+            raise ValueError('The password must be set')
 
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
@@ -21,6 +28,9 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
+        """
+        Create and save a superuser.
+        """
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_content_maker', True)
         extra_fields.setdefault('is_superuser', True)
@@ -34,6 +44,9 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    """
+    Custom user model.
+    """
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(max_length=255, unique=True)
     avatar = models.ImageField(upload_to='avatars/', default='avatars/no_avatar.webp')
@@ -53,9 +66,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.username
 
     def change_password(self, new_password):
+        """
+        Change the user's password.
+        """
         self.password = make_password(new_password)
         self.save()
 
     def save(self, *args, **kwargs):
+        """
+        Save the user object.
+
+        This method overrides the save method to handle avatar image upload.
+        """
         super().save(*args, **kwargs)
         handle_image(self, self.avatar)
