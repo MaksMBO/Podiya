@@ -10,10 +10,11 @@ class CityDetail(APIView):
     """
     Retrieve a city instance.
     """
-
     def get(self, request, pk):
-        if not pk.isdigit():
-            return Response({"error": "ID must be a digit."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            pk = int(pk)
+        except ValueError:
+            return Response({"error": "ID must be a valid integer."}, status=status.HTTP_400_BAD_REQUEST)
 
         city = get_object_or_404(City, pk=pk)
         serializer = CitySerializer(city)
