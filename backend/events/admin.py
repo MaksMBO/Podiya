@@ -17,13 +17,13 @@ class TagAdmin(admin.ModelAdmin):
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('id', 'review_text', 'user', 'event', 'rating',)
     list_display_links = ('id', 'review_text', 'user', 'event', 'rating',)
-    search_fields = ('id', 'review_text', 'user', 'event',)
+    search_fields = ('id', 'review_text', 'user__username', 'event__name',)
 
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'city', 'creator', 'price',)
     list_display_links = ('id', 'name', 'city', 'creator', 'price',)
-    search_fields = ('id', 'name', 'city', 'creator',)
+    search_fields = ('id', 'name', 'city__name', 'creator__username',)
 
 
 admin.site.register(Event, EventAdmin)

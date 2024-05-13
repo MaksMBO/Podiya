@@ -11,19 +11,19 @@ class UserAdmin(admin.ModelAdmin):
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('id', 'user',)
     list_display_links = ('id', 'user',)
-    search_fields = ('id', 'user',)
+    search_fields = ('id', 'user__username',)
 
 
 class IssueRequestAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'text', 'request_date',)
     list_display_links = ('id', 'user', 'text', 'request_date',)
-    search_fields = ('id', 'text', 'user',)
+    search_fields = ('id', 'text', 'user__username',)
 
 
 class ContentMakerRequestAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'text', 'is_approved', 'request_date',)
     list_display_links = ('id', 'user', 'text', 'is_approved', 'request_date',)
-    search_fields = ('id', 'text', 'user',)
+    search_fields = ('id', 'text', 'user__username',)
 
 
 admin.site.register(User, UserAdmin)
