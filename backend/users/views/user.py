@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -13,6 +13,9 @@ from rest_framework.generics import (
 import random
 import redis
 
+from events.models import Event
+from events.serializers.events import EventSerializer
+from helper.paginator import EventPagination
 from podiya.settings import config
 from users.models import UserProfile
 from users.serializers.user import UserCreateSerializer, UserSerializer, UserAndProfileEditSerializer, \
@@ -230,6 +233,9 @@ class ChangePasswordView(APIView):
 
 
 class ChangeContentMakerStatus(APIView):
+    """
+    Class for changing the status of a content maker.
+    """
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def patch(self, request, user_id):
@@ -243,3 +249,21 @@ class ChangeContentMakerStatus(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserSubscribedEvents(generics.ListAPIView):
+    """
+    API endpoint to retrieve events based on user subscriptions.
+    """
+    serializer_class = EventSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = EventPagination
+
+    def get_queryset(self):
+        try:
+            user = self.request.user
+            followers = user.profile.followers.all()
+            subscribed_events = Event.objects.filter(creator__in=followers).select_related('creator')
+            return subscribed_events
+        except Exception as e:
+            return Event.objects.none()

@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from users.views.user import UserLoginAPIView, AccessRecoveryApiView, UserCreateAPIView, UserRetrieveAPIView, \
     UserAndProfileEditAPIView, EmailSendCodeView, CodeValidateApiView, PasswordResetApiView, ChangePasswordView, \
-    ChangeContentMakerStatus
+    ChangeContentMakerStatus, UserSubscribedEvents
 from users.views.issue_request import IssueRequestViewSet
 from users.views.content_maker_request import ContentMakerRequestViewSet
 
@@ -24,5 +24,7 @@ urlpatterns = [
     path(r'change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('<int:user_id>/change-content-maker/', ChangeContentMakerStatus.as_view(),
          name='change_content_maker_status'),
+    path('subscribed-events/', UserSubscribedEvents.as_view(), name='user-subscribed-events'),
+
     path(r'', include(router.urls)),
 ]

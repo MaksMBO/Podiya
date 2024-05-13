@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from events.models import Event
 from users.models import UserProfile
 
 User = get_user_model()
@@ -126,7 +127,20 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class UserSerializerContentMaker(serializers.ModelSerializer):
+    """
+    Serializer for changing the status of a content maker.
+    """
     class Meta:
         model = User
         fields = ['id', 'username', 'is_content_maker']
         read_only_fields = ['username']
+
+
+class EventSerializer(serializers.ModelSerializer):
+    """
+    Serializer for retrieve events based on user subscriptions.
+    """
+    class Meta:
+        model = Event
+        fields = ['id', 'name', 'description', 'price', 'image', 'city', 'location_info', 'time', 'created_at', 'tags',
+                  'creator']
