@@ -123,3 +123,10 @@ class ChangePasswordSerializer(serializers.Serializer):
     """
     email = serializers.EmailField()
     new_password = serializers.CharField()
+
+
+class UserSerializerContentMaker(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'is_content_maker']
+        read_only_fields = ['username']

@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -16,7 +16,7 @@ import redis
 from podiya.settings import config
 from users.models import UserProfile
 from users.serializers.user import UserCreateSerializer, UserSerializer, UserAndProfileEditSerializer, \
-    EmailSerializer, PasswordCodeValidateSerializer, ChangePasswordSerializer
+    EmailSerializer, PasswordCodeValidateSerializer, ChangePasswordSerializer, UserSerializerContentMaker
 from users.services import handle_user
 from helper.errors import get_errors_as_string
 
@@ -226,4 +226,20 @@ class ChangePasswordView(APIView):
             user.set_password(new_password)
             user.save()
             return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangeContentMakerStatus(APIView):
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def patch(self, request, user_id):
+        try:
+            user = get_user_model().objects.get(pk=user_id)
+        except get_user_model().DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = UserSerializerContentMaker(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -2,7 +2,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from users.views.user import UserLoginAPIView, AccessRecoveryApiView, UserCreateAPIView, UserRetrieveAPIView, \
-    UserAndProfileEditAPIView, EmailSendCodeView, CodeValidateApiView, PasswordResetApiView, ChangePasswordView
+    UserAndProfileEditAPIView, EmailSendCodeView, CodeValidateApiView, PasswordResetApiView, ChangePasswordView, \
+    ChangeContentMakerStatus
 from users.views.issue_request import IssueRequestViewSet
 from users.views.content_maker_request import ContentMakerRequestViewSet
 
@@ -21,5 +22,7 @@ urlpatterns = [
     path(r'password_reset/', PasswordResetApiView.as_view(), name="password_reset"),
     path(r'password_change_verify_validate/', CodeValidateApiView.as_view(), name='password_change_verify_validate'),
     path(r'change-password/', ChangePasswordView.as_view(), name='change_password'),
+    path('<int:user_id>/change-content-maker/', ChangeContentMakerStatus.as_view(),
+         name='change_content_maker_status'),
     path(r'', include(router.urls)),
 ]
