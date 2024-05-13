@@ -14,7 +14,7 @@ class Command(BaseCommand):
             users = get_user_model().objects.all()
             events = Event.objects.all()
             payment_cards = PaymentCard.objects.all()
-            for _ in range(20):
+            for _ in range(250):
                 user = choice(users)
                 cards = choice(payment_cards)
                 card = cards

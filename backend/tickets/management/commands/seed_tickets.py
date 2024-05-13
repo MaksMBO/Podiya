@@ -15,7 +15,7 @@ class Command(BaseCommand):
         try:
             users = get_user_model().objects.all()
             events = Event.objects.all()
-            for _ in range(20):
+            for _ in range(100):
                 user = choice(users)
                 event = choice(events)
                 ticket = Ticket(
