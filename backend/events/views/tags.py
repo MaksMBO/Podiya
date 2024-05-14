@@ -15,16 +15,16 @@ class TagBaseView(generics.GenericAPIView):
     """
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = [IsAdminContentMakerOrReadOnly]
+    # permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        """
-        Returns a queryset for the list of tags available to the user.
-        """
-        user = self.request.user
-        if user.is_staff or user.is_content_maker:
-            return Tag.objects.all()
-        return Tag.objects.none()
+    # def get_queryset(self):
+    #     """
+    #     Returns a queryset for the list of tags available to the user.
+    #     """
+    #     user = self.request.user
+    #     if user.is_staff or user.is_content_maker:
+    #         return Tag.objects.all()
+    #     return Tag.objects.none()
 
     def perform_action(self, serializer):
         serializer.save()
